@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/detail_app_bar_layout"
+        android:id="@+id/activity_article_list_appbarlayout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/activity_article_list_appbarlayout"
         android:fitsSystemWindows="true"

@@ -8,5 +8,6 @@
     <string name="action_share">Share</string>
 
     <string name="up">Up</string>
+    <string name="fragment_article_detail_collapsing_image">fragment_article_detail_collapsing_image</string>
 
 </resources>

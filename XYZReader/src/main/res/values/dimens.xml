@@ -11,5 +11,6 @@
 
     <dimen name="list_item_article_marginStart">16dp</dimen>
     <dimen name="list_item_article_marginEnd">16dp</dimen>
+    <dimen name="fragment_article_detail_collapsing_image_minHeight">180dp</dimen>
 
 </resources>
