@@ -121,10 +121,14 @@
         android:clickable="true"
         android:focusable="true"
         android:elevation="6dp"
-        app:pressedTranslationZ="12dp"/>
+        app:pressedTranslationZ="12dp"
+        app:layout_behavior="com.example.xyzreader.ui.ScrollAwareFABBehavior"/>
 
 
-<!--    <ImageButton
+<!--
+
+
+<ImageButton
         android:stateListAnimator="@anim/fab_state_list_anim"
         android:background="@drawable/add_fab_background"
         android:layout_gravity="bottom|end"
