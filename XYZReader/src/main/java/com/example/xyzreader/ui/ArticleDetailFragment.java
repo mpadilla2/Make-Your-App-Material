@@ -13,7 +13,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -68,6 +70,7 @@ public class ArticleDetailFragment extends Fragment
     private Date mArticlePublishedDate;
     private String mArticleAuthor;
     private String mArticleTitle;
+    private Toolbar mToolbar;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -158,6 +161,18 @@ public class ArticleDetailFragment extends Fragment
                         .getIntent(), getString(R.string.action_share)));
             }
         });
+
+        mToolbar = mRootView.findViewById(R.id.fragment_article_detail_toolbar);
+        // Reference: https://medium.com/@badalov.turkhan/simple-trick-to-use-and-manage-toolbar-with-fragments-in-android-60107ae7e07a
+        ((AppCompatActivity)getActivity()).setSupportActionBar(mToolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
 
         bindViews();
         //updateStatusBar();
