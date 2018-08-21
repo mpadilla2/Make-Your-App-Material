@@ -23,6 +23,8 @@ allprojects {
 
     ext {
         androidSupportVersion = "27.1.1"
+        glideVersion = "4.7.1"
+        multiline_collapsingtoolbar = "27.1.1"
 
     }
 }

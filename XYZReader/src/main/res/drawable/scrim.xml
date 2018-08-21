@@ -1,0 +1,11 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!--Added scrim for better readability with text overlayed on image.
+    Reference: https://android.jlelse.eu/creating-the-flexible-space-with-image-pattern-on-android-b5f8908b9921
+    Reference: https://developer.android.com/guide/topics/resources/more-resources#Color
+    Reference: https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4-->
+    <gradient
+        android:angle="90"
+        android:endColor="#80000000"
+        android:startColor="@android:color/transparent"/>
+</shape>
