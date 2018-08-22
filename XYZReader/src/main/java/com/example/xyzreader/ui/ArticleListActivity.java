@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -50,6 +51,7 @@ public class ArticleListActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private CollapsingToolbarLayout mCollapsingToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private boolean mIsRefreshing = false;
     private RecyclerView mRecyclerView;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
@@ -74,6 +76,14 @@ public class ArticleListActivity extends AppCompatActivity
         Typeface collapsedFont = Typeface.createFromAsset(getAssets(), "font/roboto_regular.ttf");
         mCollapsingToolbar.setCollapsedTitleTypeface(collapsedFont);
 
+        // Reference: https://developer.android.com/training/swipe/respond-refresh-request
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+            }
+        });
+
         getSupportLoaderManager().initLoader(0, null, this);
 
         if (savedInstanceState == null) {
@@ -81,9 +91,40 @@ public class ArticleListActivity extends AppCompatActivity
         }
     }
 
+
     private void refresh() {
         startService(new Intent(this, UpdaterService.class));
     }
+
+
+    /*
+     * Reference: https://developer.android.com/training/swipe/respond-refresh-request
+     * Listen for option item selections so that we receive a notification
+     * when the user requests a refresh by selecting the refresh action bar item.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            // Check if user triggered a refresh:
+            case R.id.menu_refresh:
+                Log.i(TAG, "Refresh menu item selected");
+
+                // Signal SwipeRefreshLayout to start the progress indicator
+                mSwipeRefreshLayout.setRefreshing(true);
+
+                // Start the refresh background task.
+                // This method calls setRefreshing(false) when it's finished.
+                refresh();
+
+                return true;
+        }
+
+        // User didn't trigger a refresh, let the superclass handle this action
+        return super.onOptionsItemSelected(item);
+
+    }
+
 
     @Override
     protected void onStart() {
@@ -92,13 +133,13 @@ public class ArticleListActivity extends AppCompatActivity
                 new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
     }
 
+
     @Override
     protected void onStop() {
         super.onStop();
         unregisterReceiver(mRefreshingReceiver);
     }
 
-    private boolean mIsRefreshing = false;
 
     private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override

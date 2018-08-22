@@ -1,5 +1,8 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/refresh"
-        android:title="@string/action_refresh" />
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+<item
+    android:id="@+id/menu_refresh"
+    android:title="@string/action_refresh"
+    app:showAsAction="never" />
 </menu>
+<!-- Reference: https://developer.android.com/training/swipe/add-swipe-interface-->

@@ -27,8 +27,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 
@@ -38,6 +42,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -115,25 +120,6 @@ public class ArticleDetailFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-/*        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
-                mRootView.findViewById(R.id.draw_insets_frame_layout);
-        mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
-            @Override
-            public void onInsetsChanged(Rect insets) {
-                mTopInset = insets.top;
-            }
-        });*/
-
-/*        mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
-        mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
-            @Override
-            public void onScrollChanged() {
-                mScrollY = mScrollView.getScrollY();
-                getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this);
-                mPhotoContainerView.setTranslationY((int) (mScrollY - mScrollY / PARALLAX_FACTOR));
-                updateStatusBar();
-            }
-        });*/
 
         mCollapsingToolbar = mRootView.findViewById(R.id.fragment_article_detail_collapsing_toolbar);
         // Reference: https://goo.gl/n33LTr
@@ -143,7 +129,6 @@ public class ArticleDetailFragment extends Fragment
         mCollapsingToolbar.setCollapsedTitleTypeface(collapsedFont);
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.fragment_article_detail_collapsing_image);
-       // mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
@@ -163,16 +148,17 @@ public class ArticleDetailFragment extends Fragment
         });
 
         mToolbar = mRootView.findViewById(R.id.fragment_article_detail_toolbar);
-        // Reference: https://medium.com/@badalov.turkhan/simple-trick-to-use-and-manage-toolbar-with-fragments-in-android-60107ae7e07a
+        // Reference: suggestion by Udacity student Tanae Tachyon
         ((AppCompatActivity)getActivity()).setSupportActionBar(mToolbar);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(((AppCompatActivity) getActivity()).getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(((AppCompatActivity) getActivity()).getSupportActionBar()).setDisplayShowHomeEnabled(true);
+
         mToolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().onBackPressed();
+                ((AppCompatActivity)getActivity()).onBackPressed();
             }
         });
-
 
         bindViews();
         //updateStatusBar();
@@ -191,36 +177,6 @@ public class ArticleDetailFragment extends Fragment
         getLoaderManager().initLoader(0, null, this);
     }
 
-/*
-    private void updateStatusBar() {
-        int color = 0;
-        if (mPhotoView != null && mTopInset != 0 && mScrollY > 0) {
-            float f = progress(mScrollY,
-                    mStatusBarFullOpacityBottom - mTopInset * 3,
-                    mStatusBarFullOpacityBottom - mTopInset);
-            color = Color.argb((int) (255 * f),
-                    (int) (Color.red(mMutedColor) * 0.9),
-                    (int) (Color.green(mMutedColor) * 0.9),
-                    (int) (Color.blue(mMutedColor) * 0.9));
-        }
-        mStatusBarColorDrawable.setColor(color);
-        mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
-    }
-
-
-    static float progress(float v, float min, float max) {
-        return constrain((v - min) / (max - min), 0, 1);
-    }
-
-    static float constrain(float val, float min, float max) {
-        if (val < min) {
-            return min;
-        } else if (val > max) {
-            return max;
-        } else {
-            return val;
-        }
-    }*/
 
     private Date parsePublishedDate() {
         try {
@@ -241,7 +197,6 @@ public class ArticleDetailFragment extends Fragment
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
-
 
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "font/roboto_regular.ttf"));
 
@@ -274,21 +229,33 @@ public class ArticleDetailFragment extends Fragment
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
                     .replaceAll("\\r\\n\\r\\n", "\n").replaceAll("\\r\\n", " ")));
 
-            // Reference: https://github.com/bumptech/glide/wiki
+            // Reference: https://android.jlelse.eu/dynamic-colors-with-glide-library-and-android-palette-5be407049d97
             Glide.with(this)
                     .asBitmap()
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
-                    .into(new SimpleTarget<Bitmap>() {
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .placeholder(R.drawable.ic_image_loading)
+                            .error(R.drawable.ic_broken_image))
+                    .listener(new RequestListener<Bitmap>() {
                         @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            Palette palette = Palette.from(resource).generate();
-                            mMutedColor = palette.getDarkMutedColor(0xFF333333);
-                            mPhotoView.setImageBitmap(resource);
-                            mRootView.findViewById(R.id.meta_bar)
-                                    .setBackgroundColor(mMutedColor);
-                            //updateStatusBar();
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                            //Objects.requireNonNull(getParentFragment()).startPostponedEnterTransition();
+                            return false;
                         }
-                    });
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                            //Objects.requireNonNull(getParentFragment()).startPostponedEnterTransition();
+                            if (resource != null) {
+                                Palette p = Palette.from(resource).generate();
+                                mMutedColor = p.getDarkMutedColor(0xFF333333);
+                                mRootView.findViewById(R.id.meta_bar).setBackgroundColor(mMutedColor);
+                            }
+                            return false;
+                        }
+                    })
+                    .into(mPhotoView);
         } else {
             mRootView.setVisibility(View.GONE);
             bylineView.setText("N/A" );
@@ -302,6 +269,7 @@ public class ArticleDetailFragment extends Fragment
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
+
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
@@ -322,22 +290,13 @@ public class ArticleDetailFragment extends Fragment
         bindViews();
     }
 
+
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mCursor = null;
         bindViews();
     }
 
-    /*    public int getUpButtonFloor() {
-        if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
-            return Integer.MAX_VALUE;
-        }
-
-        // account for parallax
-        return mIsCard
-                ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
-                : mPhotoView.getHeight() - mScrollY;
-    }*/
 
     public ArticleDetailActivity getActivityCast() {
         return (ArticleDetailActivity) getActivity();
