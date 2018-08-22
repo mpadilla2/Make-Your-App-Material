@@ -38,6 +38,7 @@ public class ArticleDetailActivity extends AppCompatActivity
     private View mUpButtonContainer;
     private View mUpButton;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +84,14 @@ public class ArticleDetailActivity extends AppCompatActivity
     }
 
 
+    // Reference: https://stackoverflow.com/q/42502519/10151438
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
@@ -111,11 +120,13 @@ public class ArticleDetailActivity extends AppCompatActivity
         }
     }
 
+
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mCursor = null;
         mPagerAdapter.notifyDataSetChanged();
     }
+
 
     private class MyPagerAdapter extends FragmentPagerAdapter {
 
