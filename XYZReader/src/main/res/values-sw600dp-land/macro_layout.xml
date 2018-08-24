@@ -1,7 +1,4 @@
 <resources>
-    <!-- detail -->
-    <bool name="detail_is_card">true</bool>
-
-    <dimen name="detail_photo_height">600dp</dimen>
-    <dimen name="detail_card_top_margin">256dp</dimen>
+    <integer name="activity_article_list_column_count">3</integer>
+    <dimen name="activity_article_list_recycler_view_side_margin">64dp</dimen> <!-- minus 64 - 12 -->
 </resources>

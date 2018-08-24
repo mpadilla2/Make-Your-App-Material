@@ -8,7 +8,7 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/activity_article_list_appbarlayout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/activity_article_list_appbarlayout"
+        android:layout_height="@dimen/activity_article_list_appbarlayout_height"
         android:fitsSystemWindows="true"
         android:stateListAnimator="@animator/appbar_elevated"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
@@ -18,8 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginEnd="@dimen/activity_article_list_collapsing_toolbar_expandedTitleMarginEnd"
+            app:expandedTitleMarginStart="@dimen/activity_article_list_collapsing_toolbar_expandedTitleMarginStart"
             app:contentScrim="?attr/colorPrimary"
             app:title="@string/app_name"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -31,7 +31,7 @@
                 android:minHeight="?attr/actionBarSize"
                 android:background="@android:color/transparent"
                 app:layout_scrollFlags="scroll|enterAlways"
-                android:elevation="4dp"/>
+                android:elevation="@dimen/activity_article_list_toolbar_elevation"/>
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -44,17 +44,14 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
+            android:id="@+id/activity_article_list_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:scrollbarStyle="outsideOverlay"
-            android:paddingLeft="@dimen/list_side_margin"
-            android:paddingRight="@dimen/list_side_margin"
-            android:paddingBottom="28dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            android:paddingStart="@dimen/activity_article_list_recycler_view_side_margin"
+            android:paddingEnd="@dimen/activity_article_list_recycler_view_side_margin"
+            android:paddingBottom="@dimen/activity_article_list_recycler_view_paddingBottom"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </android.support.v4.widget.SwipeRefreshLayout>
 </android.support.design.widget.CoordinatorLayout>
-
-<!--             android:paddingTop="116dp"
--->

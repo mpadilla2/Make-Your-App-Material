@@ -1,16 +1,37 @@
 <resources>
-    <!-- detail -->
-    <dimen name="detail_title_text_size">32sp</dimen>
-    <dimen name="detail_body_text_size">22sp</dimen>
-    <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.25</item>
+    <dimen name="activity_article_list_appbarlayout_height">128dp</dimen>
+    <dimen name="activity_article_list_collapsing_toolbar_expandedTitleMarginEnd">64dp</dimen>
+    <dimen name="activity_article_list_collapsing_toolbar_expandedTitleMarginStart">48dp</dimen>
+    <dimen name="activity_article_list_toolbar_elevation">4dp</dimen>
+    <dimen name="activity_article_list_recycler_view_paddingBottom">28dp</dimen>
+    <dimen name="activity_article_list_recycler_view_side_margin">8dp</dimen>
 
-    <dimen name="fab_elevation">2dp</dimen>
-    <dimen name="fab_press_translation_z">6dp</dimen>
-    <dimen name="fab_margin">24dp</dimen>
-    <dimen name="activity_article_list_appbarlayout">128dp</dimen>
 
-    <dimen name="list_item_article_marginStart">16dp</dimen>
-    <dimen name="list_item_article_marginEnd">16dp</dimen>
+    <dimen name="fragment_article_detail_body_text_size">22sp</dimen>
     <dimen name="fragment_article_detail_collapsing_image_minHeight">180dp</dimen>
+    <dimen name="fragment_article_detail_collapsing_toolbar_expandedTitleMarginStart">48dp</dimen>
+    <dimen name="fragment_article_detail_collapsing_toolbar_expandedTitleMarginEnd">64dp</dimen>
+    <dimen name="fragment_article_detail_share_fab_layout_margin">16dp</dimen>
+    <dimen name="fragment_article_detail_share_fab_elevation">6dp</dimen>
+    <dimen name="fragment_article_detail_share_fab_pressedtranslationz">18dp</dimen>
+    <dimen name="fragment_article_detail_share_fab_borderwidth">0dp</dimen>
 
+    <dimen name="list_item_article_cardview_marginTop">16dp</dimen>
+    <dimen name="list_item_article_cardview_marginBottom">16dp</dimen>
+    <dimen name="list_item_article_cardview_elevation">1dp</dimen>
+    <dimen name="list_item_article_cardview_cornerradius">5dp</dimen>
+    <dimen name="list_item_article_cardview_marginStart">16dp</dimen>
+    <dimen name="list_item_article_cardview_marginEnd">16dp</dimen>
+    <dimen name="list_item_article_subtitle">16sp</dimen>
+    <dimen name="list_item_article_subtitle_paddingStart">16dp</dimen>
+    <dimen name="list_item_article_subtitle_paddingEnd">16dp</dimen>
+    <dimen name="list_item_article_subtitle_paddingBottom">16dp</dimen>
+    <dimen name="list_item_article_thumbnail_scrim_height">194dp</dimen>
+    <dimen name="list_item_article_thumbnail_width">344dp</dimen>
+    <dimen name="list_item_article_thumbnail_height">194dp</dimen>
+    <dimen name="list_item_article_title_paddingBottom">4dp</dimen>
+    <dimen name="list_item_article_title_paddingStart">16dp</dimen>
+    <dimen name="list_item_article_title_paddingEnd">16dp</dimen>
+    <dimen name="list_item_article_title_paddingTop">16dp</dimen>
+    <dimen name="list_item_article_title_textSize">20sp</dimen>
 </resources>

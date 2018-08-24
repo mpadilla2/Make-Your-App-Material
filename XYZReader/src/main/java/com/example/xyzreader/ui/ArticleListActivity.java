@@ -16,7 +16,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -48,27 +47,24 @@ public class ArticleListActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String TAG = ArticleListActivity.class.toString();
-    private Toolbar mToolbar;
-    private CollapsingToolbarLayout mCollapsingToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private boolean mIsRefreshing = false;
     private RecyclerView mRecyclerView;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
-    private SimpleDateFormat outputFormat = new SimpleDateFormat();
+    private final SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
-    private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
+    private final GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
-        mToolbar = findViewById(R.id.activity_article_list_toolbar);
-        mCollapsingToolbar = findViewById(R.id.activity_article_list_collapsing_toolbar);
+        CollapsingToolbarLayout mCollapsingToolbar = findViewById(R.id.activity_article_list_collapsing_toolbar);
         mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        mRecyclerView = findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.activity_article_list_recycler_view);
 
         // Reference: https://goo.gl/n33LTr
         Typeface expandedFont = Typeface.createFromAsset(getAssets(), "font/roboto_black.ttf");
@@ -141,7 +137,7 @@ public class ArticleListActivity extends AppCompatActivity
     }
 
 
-    private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (UpdaterService.BROADCAST_ACTION_STATE_CHANGE.equals(intent.getAction())) {
@@ -166,8 +162,8 @@ public class ArticleListActivity extends AppCompatActivity
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, columnCount);
+        int columnCount = getResources().getInteger(R.integer.activity_article_list_column_count);
+        RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(this, columnCount);
         mRecyclerView.setLayoutManager(gridLayoutManager);
     }
 
@@ -178,9 +174,9 @@ public class ArticleListActivity extends AppCompatActivity
 
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-        private Cursor mCursor;
+        private final Cursor mCursor;
 
-        public Adapter(Cursor cursor) {
+        Adapter(Cursor cursor) {
             mCursor = cursor;
         }
 
@@ -190,18 +186,11 @@ public class ArticleListActivity extends AppCompatActivity
             return mCursor.getLong(ArticleLoader.Query._ID);
         }
 
+        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
-            final ViewHolder vh = new ViewHolder(view);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
-                }
-            });
-            return vh;
+            return new ViewHolder(view);
         }
 
         private Date parsePublishedDate() {
@@ -216,7 +205,8 @@ public class ArticleListActivity extends AppCompatActivity
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
@@ -235,7 +225,6 @@ public class ArticleListActivity extends AppCompatActivity
                         + "<br/>" + " by "
                         + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
-            //holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));*/
 
             Glide.with(holder.itemView.getContext())
                     .load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
@@ -244,6 +233,14 @@ public class ArticleListActivity extends AppCompatActivity
                             .placeholder(R.drawable.ic_image_loading)
                             .error(R.drawable.ic_broken_image))
                     .into(holder.thumbnailView);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, ItemsContract.Items.buildItemUri(getItemId(holder.getAdapterPosition())));
+                    startActivity(intent);
+                }
+            });
         }
 
         @Override
@@ -253,11 +250,11 @@ public class ArticleListActivity extends AppCompatActivity
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView thumbnailView;
-        public TextView titleView;
-        public TextView subtitleView;
+        final ImageView thumbnailView;
+        final TextView titleView;
+        final TextView subtitleView;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             thumbnailView = view.findViewById(R.id.thumbnail);
             titleView = view.findViewById(R.id.article_title);

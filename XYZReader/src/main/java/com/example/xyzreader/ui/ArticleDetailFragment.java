@@ -1,10 +1,10 @@
 package com.example.xyzreader.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -42,6 +42,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -51,37 +52,31 @@ import java.util.Objects;
  */
 public class ArticleDetailFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
-    private static final String TAG = "ArticleDetailFragment";
 
-    public static final String ARG_ITEM_ID = "item_id";
-    private static final float PARALLAX_FACTOR = 1.25f;
+    private static final String TAG = "ArticleDetailFragment";
+    private static final String ARG_ITEM_ID = "item_id";
 
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
-    private int mMutedColor = 0xFF333333;
-    private ObservableScrollView mScrollView;
-    private DrawInsetsFrameLayout mDrawInsetsFrameLayout;
-    private ColorDrawable mStatusBarColorDrawable;
 
     private CollapsingToolbarLayout mCollapsingToolbar;
-    private int mTopInset;
-    //private View mPhotoContainerView;
     private ImageView mPhotoView;
-    private int mScrollY;
-    private boolean mIsCard = false;
-    private int mStatusBarFullOpacityBottom;
-    private FloatingActionButton mFloatingActionButton;
     private Date mArticlePublishedDate;
     private String mArticleAuthor;
     private String mArticleTitle;
-    private Toolbar mToolbar;
+    private Typeface mRobotoRegular;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.getDefault());
     // Use default locale format
-    private SimpleDateFormat outputFormat = new SimpleDateFormat();
+    @SuppressLint("SimpleDateFormat")
+    private final SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
-    private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
+    private final GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
+    private int mDefaultColor = 0xDD4B92C4;
+    private int mVibrantColor;
+    private int mDarkVibrantColor;
+    private int mLightVibrantColor;
 
 
     /**
@@ -105,34 +100,30 @@ public class ArticleDetailFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
+        if (Objects.requireNonNull(getArguments()).containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
         }
 
-       // mIsCard = getResources().getBoolean(R.bool.detail_is_card);
-        mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
-                R.dimen.detail_card_top_margin);
         setHasOptionsMenu(true);
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 
         mCollapsingToolbar = mRootView.findViewById(R.id.fragment_article_detail_collapsing_toolbar);
         // Reference: https://goo.gl/n33LTr
-        Typeface expandedFont = Typeface.createFromAsset(getActivity().getAssets(), "font/roboto_black.ttf");
-        mCollapsingToolbar.setExpandedTitleTypeface(expandedFont);
-        Typeface collapsedFont = Typeface.createFromAsset(getActivity().getAssets(), "font/roboto_regular.ttf");
-        mCollapsingToolbar.setCollapsedTitleTypeface(collapsedFont);
+        Typeface mRobotoBlack = Typeface.createFromAsset(Objects.requireNonNull(getActivity()).getAssets(), "font/roboto_black.ttf");
+        mRobotoRegular = Typeface.createFromAsset(getActivity().getAssets(), "font/roboto_regular.ttf");
 
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.fragment_article_detail_collapsing_image);
+        mCollapsingToolbar.setExpandedTitleTypeface(mRobotoBlack);
+        mCollapsingToolbar.setCollapsedTitleTypeface(mRobotoRegular);
 
-        mStatusBarColorDrawable = new ColorDrawable(0);
+        mPhotoView = mRootView.findViewById(R.id.thumbnail);
 
-        mFloatingActionButton = mRootView.findViewById(R.id.share_fab);
+        FloatingActionButton mFloatingActionButton = mRootView.findViewById(R.id.fragment_article_detail_share_fab);
         mFloatingActionButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -147,21 +138,19 @@ public class ArticleDetailFragment extends Fragment
             }
         });
 
-        mToolbar = mRootView.findViewById(R.id.fragment_article_detail_toolbar);
-        // Reference: suggestion by Udacity student Tanae Tachyon
+        Toolbar mToolbar = mRootView.findViewById(R.id.fragment_article_detail_toolbar);
+        // Reference: https://stackoverflow.com/q/42502519/10151438
         ((AppCompatActivity)getActivity()).setSupportActionBar(mToolbar);
         Objects.requireNonNull(((AppCompatActivity) getActivity()).getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         Objects.requireNonNull(((AppCompatActivity) getActivity()).getSupportActionBar()).setDisplayShowHomeEnabled(true);
-
-        mToolbar.setOnClickListener(new View.OnClickListener() {
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((AppCompatActivity)getActivity()).onBackPressed();
+                getActivity().onBackPressed();
             }
         });
 
         bindViews();
-        //updateStatusBar();
         return mRootView;
     }
 
@@ -189,16 +178,18 @@ public class ArticleDetailFragment extends Fragment
         }
     }
 
+
     private void bindViews() {
         if (mRootView == null) {
             return;
         }
 
-        TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
+        TextView bylineView = mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        TextView bodyView = mRootView.findViewById(R.id.article_body);
 
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "font/roboto_regular.ttf"));
+        bylineView.setTypeface(mRobotoRegular);
+        bodyView.setTypeface(mRobotoRegular);
 
         if (mCursor != null) {
             mArticlePublishedDate = parsePublishedDate();
@@ -208,26 +199,33 @@ public class ArticleDetailFragment extends Fragment
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             mCollapsingToolbar.setTitle(mArticleTitle);
+            bylineView.setVisibility(View.VISIBLE);
             if (!mArticlePublishedDate.before(START_OF_EPOCH.getTime())) {
                 bylineView.setText(Html.fromHtml(
                         DateUtils.getRelativeTimeSpanString(
                                 mArticlePublishedDate.getTime(),
                                 System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                                 DateUtils.FORMAT_ABBREV_ALL).toString()
-                                + " by <font color='#ffffff'>"
-                                + mArticleAuthor
-                                + "</font>"));
+                                + " by " + mArticleAuthor));
 
             } else {
                 // If date is before 1902, just show the string
                 bylineView.setText(Html.fromHtml(
-                        outputFormat.format(mArticlePublishedDate) + " by <font color='#ffffff'>"
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR)
-                                + "</font>"));
+                        outputFormat.format(mArticlePublishedDate) + " by "
+                        + mCursor.getString(ArticleLoader.Query.AUTHOR)));
 
             }
+
+            // Requirements:
+            // Examined html and determined that \r\n should be a space and \r\n\r\n should be newline based on textual context.
+            // 1. Use negative lookbehind and negative lookahead to isolate the pattern that should be a space first.
+            //      So the space pattern cannot have \r\n on either side of \r\n. It must be \r\n by itself.
+            // 2. Use negative lookbehind and positive lookahead to isolate the \r\n\r\n pattern to replace with one break.
+            // 3. Finally, replace \n with break.
+            // Reference: https://www.regular-expressions.info/lookaround.html
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
-                    .replaceAll("\\r\\n\\r\\n", "\n").replaceAll("\\r\\n", " ")));
+                            .replaceAll("(?<!\\r\\n)(\\r\\n)(?!\\r\\n)", " ")
+                            .replaceAll("(?<!\\r\\n)(\\r\\n)(?=\\r\\n)|(\\n)", "<br />")));
 
             // Reference: https://android.jlelse.eu/dynamic-colors-with-glide-library-and-android-palette-5be407049d97
             Glide.with(this)
@@ -240,26 +238,35 @@ public class ArticleDetailFragment extends Fragment
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                            //Objects.requireNonNull(getParentFragment()).startPostponedEnterTransition();
                             return false;
                         }
 
                         @Override
                         public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                            //Objects.requireNonNull(getParentFragment()).startPostponedEnterTransition();
                             if (resource != null) {
-                                Palette p = Palette.from(resource).generate();
-                                mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mRootView.findViewById(R.id.meta_bar).setBackgroundColor(mMutedColor);
+                                Palette.Builder builder = Palette.from(resource);
+
+                                // Use PaletteAsyncListener to move generation off MainThread
+                                builder.generate(new Palette.PaletteAsyncListener() {
+                                    @Override
+                                    public void onGenerated(@NonNull Palette palette) {
+                                        mVibrantColor = palette.getVibrantColor(mDefaultColor);
+                                        mDarkVibrantColor = palette.getDarkVibrantColor(mDefaultColor);
+
+                                        mRootView.findViewById(R.id.meta_bar).setBackgroundColor(mVibrantColor);
+                                        mCollapsingToolbar.setBackgroundColor(mVibrantColor);
+                                        //mCollapsingToolbar.setStatusBarScrimColor(mDarkVibrantColor);
+                                        mCollapsingToolbar.setContentScrimColor(mVibrantColor);
+                                    }
+                                });
                             }
                             return false;
                         }
                     })
                     .into(mPhotoView);
         } else {
-            mRootView.setVisibility(View.GONE);
-            bylineView.setText("N/A" );
-            bodyView.setText("N/A");
+            bylineView.setVisibility(View.INVISIBLE);
+            bodyView.setText(R.string.bodyViewText);
         }
     }
 
@@ -297,9 +304,5 @@ public class ArticleDetailFragment extends Fragment
         bindViews();
     }
 
-
-    public ArticleDetailActivity getActivityCast() {
-        return (ArticleDetailActivity) getActivity();
-    }
 
 }

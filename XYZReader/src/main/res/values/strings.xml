@@ -7,9 +7,9 @@
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
 
-    <string name="up">Up</string>
     <string name="fragment_article_detail_collapsing_image">fragment_article_detail_collapsing_image</string>
     <string name="list_item_article">article image</string>
     <string name="article_byline">article_byline</string>
+    <string name="bodyViewText">Loading…</string>
 
 </resources>
