@@ -20,7 +20,7 @@
 
         <ImageView
             android:id="@+id/thumbnail"
-            android:layout_width="@dimen/list_item_article_thumbnail_width"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/list_item_article_thumbnail_height"
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"

@@ -9,7 +9,6 @@
         android:id="@+id/fragment_article_detail_appbarlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
         android:stateListAnimator="@animator/appbar_elevated"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -17,7 +16,6 @@
             android:id="@+id/fragment_article_detail_collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginStart="@dimen/fragment_article_detail_collapsing_toolbar_expandedTitleMarginStart"
             app:expandedTitleMarginEnd="@dimen/fragment_article_detail_collapsing_toolbar_expandedTitleMarginEnd"
@@ -36,6 +34,7 @@
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/fragment_article_detail_toolbar"
+                android:layout_marginTop="@dimen/fragment_article_detail_toolbar_margintop"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:minHeight="?attr/actionBarSize"
@@ -88,7 +87,6 @@
                 android:layout_marginRight="@dimen/fragment_article_detail_inner_horiz_margin"
                 android:paddingBottom="@dimen/fragment_article_detail_body_bottom_margin"
                 android:textColor="@color/primary_text"
-                android:textColorLink="@color/accent"
                 android:textSize="@dimen/fragment_article_detail_body_text_size"
                 android:textAlignment="gravity"
                 android:gravity="clip_horizontal"/>

@@ -34,4 +34,5 @@
     <dimen name="list_item_article_title_paddingEnd">16dp</dimen>
     <dimen name="list_item_article_title_paddingTop">16dp</dimen>
     <dimen name="list_item_article_title_textSize">20sp</dimen>
+    <dimen name="fragment_article_detail_toolbar_margintop">24dp</dimen>
 </resources>

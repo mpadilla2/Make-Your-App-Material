@@ -150,7 +150,6 @@ public class ArticleDetailFragment extends Fragment
             }
         });
 
-        bindViews();
         return mRootView;
     }
 
@@ -224,8 +223,9 @@ public class ArticleDetailFragment extends Fragment
             // 3. Finally, replace \n with break.
             // Reference: https://www.regular-expressions.info/lookaround.html
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
-                            .replaceAll("(?<!\\r\\n)(\\r\\n)(?!\\r\\n)", " ")
-                            .replaceAll("(?<!\\r\\n)(\\r\\n)(?=\\r\\n)|(\\n)", "<br />")));
+                    .substring(0,1000)
+                    .replaceAll("(?<!\\r\\n)(\\r\\n)(?!\\r\\n)", " ")
+                    .replaceAll("(?<!\\r\\n)(\\r\\n)(?=\\r\\n)|(\\n)", "<br />")));
 
             // Reference: https://android.jlelse.eu/dynamic-colors-with-glide-library-and-android-palette-5be407049d97
             Glide.with(this)
